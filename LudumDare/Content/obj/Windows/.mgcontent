@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>Windows</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/pvrs1/Documents/Visual Studio 2015/Projects/LudumDare/LudumDare/Content/cell.png</File>
+    <File>C:/Users/pvrs1/Documents/Visual Studio 2015/Projects/LudumDare/LudumDare/Content/wall.png</File>
+    <File>C:/Users/pvrs1/Documents/Visual Studio 2015/Projects/LudumDare/LudumDare/Content/slot.png</File>
+    <File>C:/Users/pvrs1/Documents/Visual Studio 2015/Projects/LudumDare/LudumDare/Content/arrow.png</File>
+    <File>C:/Users/pvrs1/Documents/Visual Studio 2015/Projects/LudumDare/LudumDare/Content/restart.png</File>
+  </SourceFiles>
+</SourceFileCollection>
