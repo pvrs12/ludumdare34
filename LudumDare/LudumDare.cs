@@ -23,7 +23,7 @@ namespace LudumDare
         private const int TOP_LEFT_X = 20;
         private const int TOP_LEFT_Y = 20;
 
-        private const int LEVEL_COUNT = 3;
+        private const int LEVEL_COUNT = 5;
 
         private Field field;
         private bool clicked;
@@ -79,15 +79,24 @@ namespace LudumDare
             nextLevelTexture = Content.Load<Texture2D>("arrow");
 
             field = loadLevel(level);
+            moveButtons();
+        }
 
-            restartButton = new Rectangle(TOP_LEFT_X,field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-            if(BUTTON_WIDTH+BUTTON_WIDTH/2 > field.Width)
+        private void moveButtons()
+        {
+            if (field == null)
+            {
+                return;
+            }
+            restartButton = new Rectangle(TOP_LEFT_X, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+            if (BUTTON_WIDTH + BUTTON_WIDTH / 2 > field.Width)
             {
                 nextLevelButton = new Rectangle(TOP_LEFT_X + BUTTON_WIDTH + BUTTON_WIDTH / 2, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-            } else {
+            }
+            else
+            {
                 nextLevelButton = new Rectangle(field.Width + TOP_LEFT_X - BUTTON_WIDTH, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
-            
         }
 
         private Field loadLevel(int level)
@@ -100,16 +109,16 @@ namespace LudumDare
             }
             levelComplete = false;
             string levelName = Content.RootDirectory + Path.DirectorySeparatorChar + "level" + level;
-            Console.WriteLine("Opening level " + levelName);
+            //Console.WriteLine("Opening level " + levelName);
             Field field = Field.MakeField(levelName);
-            for(int i = 0; i < field.Rows; ++i)
-            {
-                for(int j = 0; j < field.Columns; ++j)
-                {
-                    Console.Write("{0:x2} ", field.GetSlot(i, j).WriteSlot());
-                }
-                Console.WriteLine();
-            }
+            //for(int i = 0; i < field.Rows; ++i)
+           // {
+            //    for(int j = 0; j < field.Columns; ++j)
+            //    {
+            //        Console.Write("{0:x2} ", field.GetSlot(i, j).WriteSlot());
+            //    }
+            //    Console.WriteLine();
+            //}
             
             return field;
         }
@@ -167,6 +176,7 @@ namespace LudumDare
             {
                 loadNewLevel = false;
                 field = loadLevel(level);
+                moveButtons();
             }
             if (processInput)
             {
@@ -182,14 +192,12 @@ namespace LudumDare
                         levelComplete = true;
                         //Exit();
                     }
-                }
-                //check if inside buttons
-                if (restartButton.Contains(xInputLoc, yInputLoc) || loadNewLevel)
+                } else if (restartButton.Contains(xInputLoc, yInputLoc) || loadNewLevel)
                 {
                     //restart clicked
                     field = loadLevel(level);
-                }
-                if (nextLevelButton.Contains(xInputLoc, yInputLoc) && levelComplete)
+                    moveButtons();
+                } else if (nextLevelButton.Contains(xInputLoc, yInputLoc) && levelComplete)
                 {
                     //next level clicked
                     loadNewLevel = true;

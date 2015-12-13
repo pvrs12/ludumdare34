@@ -46,7 +46,7 @@ namespace LudumDare
         {
             get
             {
-                return SLOT_SIZE - WALL_WIDTH;
+                return SLOT_SIZE - WALL_WIDTH*2;
             }
         }
 
@@ -63,6 +63,7 @@ namespace LudumDare
 
         internal void Draw(SpriteBatch spriteBatch, int i, int j, int xoffset,int yoffset)
         {
+            //switch i & j because of switch from rows/cols to x/y
             Vector2 topLeft = new Vector2(j * SLOT_SIZE+xoffset, i * SLOT_SIZE+yoffset);
             spriteBatch.Draw(slot_texture, new Rectangle((int)topLeft.X, (int)topLeft.Y, SLOT_SIZE, SLOT_SIZE), Winning ? Color.White : new Color(Color.DarkRed, 200));
             if (NorthWall)
@@ -75,7 +76,7 @@ namespace LudumDare
             }
             if (SouthWall)
             {
-                spriteBatch.Draw(wall_texture, new Rectangle((int)topLeft.X, (int)topLeft.Y+SLOT_SIZE, SLOT_SIZE, WALL_WIDTH), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0);
+                spriteBatch.Draw(wall_texture, new Rectangle((int)topLeft.X, (int)topLeft.Y+SLOT_SIZE-WALL_WIDTH, SLOT_SIZE, WALL_WIDTH), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0);
             }
             if (WestWall)
             {

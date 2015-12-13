@@ -111,7 +111,8 @@ namespace LudumDare
             {
                 for(int j = 0; j < Columns; ++j)
                 {
-                    if (field[i, j].contains(x, y, i, j))
+                    //swap i & j because of swap from rows/cols to x/y
+                    if (field[i, j].contains(x, y, j, i))
                     {
                         return new Tuple<int, int>(i, j);
                     }
@@ -133,7 +134,11 @@ namespace LudumDare
                 //try row-1
                 if (row > 0)
                 {
-                    field[row - 1, col].Occupied = true;
+                    //verify it doesn't have a wall (one way walls is icky)
+                    if (!field[row - 1, col].SouthWall)
+                    {
+                        field[row - 1, col].Occupied = true;
+                    }
                 }
             }
             if (!slot.EastWall)
@@ -141,7 +146,10 @@ namespace LudumDare
                 //try col+1
                 if(col < Columns - 1)
                 {
-                    field[row, col + 1].Occupied = true;
+                    if (!field[row, col + 1].WestWall)
+                    {
+                        field[row, col + 1].Occupied = true;
+                    }
                 }
             }
             if (!slot.SouthWall)
@@ -149,14 +157,20 @@ namespace LudumDare
                 //row+1
                 if (row < Rows - 1)
                 {
-                    field[row + 1, col].Occupied = true;
+                    if (!field[row + 1, col].NorthWall)
+                    {
+                        field[row + 1, col].Occupied = true;
+                    }
                 }
             }
             if (!slot.WestWall)
             {
                 if (col > 0)
                 {
-                    field[row, col - 1].Occupied = true;
+                    if (!field[row, col - 1].EastWall)
+                    {
+                        field[row, col - 1].Occupied = true;
+                    }
                 }
             }
             clear_surrounded();
