@@ -34,7 +34,7 @@ namespace LudumDare
         }
         public bool Winning { get; private set; }
 
-        public const int SLOT_SIZE = 20;
+        public const int SLOT_SIZE = 40;
         public int WALL_WIDTH
         {
             get

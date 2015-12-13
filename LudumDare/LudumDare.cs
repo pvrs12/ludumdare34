@@ -19,6 +19,7 @@ namespace LudumDare
 
         private const int BUTTON_WIDTH = 32;
         private const int BUTTON_HEIGHT = 32;
+        private const int BUTTON_SPACER = 10;
 
         private const int TOP_LEFT_X = 20;
         private const int TOP_LEFT_Y = 20;
@@ -88,14 +89,14 @@ namespace LudumDare
             {
                 return;
             }
-            restartButton = new Rectangle(TOP_LEFT_X, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+            restartButton = new Rectangle(TOP_LEFT_X, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             if (BUTTON_WIDTH + BUTTON_WIDTH / 2 > field.Width)
             {
-                nextLevelButton = new Rectangle(TOP_LEFT_X + BUTTON_WIDTH + BUTTON_WIDTH / 2, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+                nextLevelButton = new Rectangle(TOP_LEFT_X + BUTTON_WIDTH + BUTTON_WIDTH / 2, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
             else
             {
-                nextLevelButton = new Rectangle(field.Width + TOP_LEFT_X - BUTTON_WIDTH, field.Height + 10 + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+                nextLevelButton = new Rectangle(field.Width + TOP_LEFT_X - BUTTON_WIDTH, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
         }
 
@@ -109,16 +110,11 @@ namespace LudumDare
             }
             levelComplete = false;
             string levelName = Content.RootDirectory + Path.DirectorySeparatorChar + "level" + level;
-            //Console.WriteLine("Opening level " + levelName);
             Field field = Field.MakeField(levelName);
-            //for(int i = 0; i < field.Rows; ++i)
-           // {
-            //    for(int j = 0; j < field.Columns; ++j)
-            //    {
-            //        Console.Write("{0:x2} ", field.GetSlot(i, j).WriteSlot());
-            //    }
-            //    Console.WriteLine();
-            //}
+
+            graphics.PreferredBackBufferHeight = field.Height + TOP_LEFT_Y * 2 + BUTTON_HEIGHT + BUTTON_SPACER;
+            graphics.PreferredBackBufferWidth = field.Width + TOP_LEFT_X * 2 + BUTTON_WIDTH + BUTTON_SPACER;
+            graphics.ApplyChanges();
             
             return field;
         }
