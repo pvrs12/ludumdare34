@@ -68,3 +68,9 @@
 /processorParam:TextureFormat=Color
 /build:restart.png
 
+#begin font.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:font.spritefont
+

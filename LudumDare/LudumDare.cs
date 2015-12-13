@@ -24,19 +24,26 @@ namespace LudumDare
         private const int TOP_LEFT_X = 20;
         private const int TOP_LEFT_Y = 20;
 
-        private const int LEVEL_COUNT = 5;
+        private const int LEVEL_COUNT = 6;
 
         private Field field;
         private bool clicked;
         private bool levelComplete;
         private bool loadNewLevel;
         private int level;
+        private int moveCount;
 
         Texture2D restartTexture;
         Texture2D nextLevelTexture;
 
         Rectangle restartButton;
         Rectangle nextLevelButton;
+        Vector2 statusTextLocation;
+        string status;
+
+        private string userid;
+
+        SpriteFont font;
 
         public LudumDare()
         {
@@ -58,6 +65,7 @@ namespace LudumDare
             loadNewLevel = false;
             IsMouseVisible = true;
             level = 0;
+            status = "Level: {0}\nMoves: {1}";
 
             base.Initialize();
         }
@@ -79,8 +87,20 @@ namespace LudumDare
             restartTexture = Content.Load<Texture2D>("restart");
             nextLevelTexture = Content.Load<Texture2D>("arrow");
 
+            font = Content.Load<SpriteFont>("font");
+
+            userid = GetUserId();
+
             field = loadLevel(level);
             moveButtons();
+        }
+
+        private string GetUserId()
+        {
+            //check file for userid
+            //if no userid
+
+            return "";
         }
 
         private void moveButtons()
@@ -98,23 +118,26 @@ namespace LudumDare
             {
                 nextLevelButton = new Rectangle(field.Width + TOP_LEFT_X - BUTTON_WIDTH, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
+            Vector2 stringSize = font.MeasureString(status);
+            statusTextLocation = new Vector2(TOP_LEFT_X + field.Width - font.MeasureString(status).X / 2, field.Height + BUTTON_SPACER + TOP_LEFT_Y + BUTTON_HEIGHT + BUTTON_SPACER);
+            
+            graphics.PreferredBackBufferHeight = field.Height + TOP_LEFT_Y * 2 + BUTTON_HEIGHT + BUTTON_SPACER + (int) stringSize.Y;
+            graphics.PreferredBackBufferWidth = field.Width + TOP_LEFT_X * 2 + BUTTON_SPACER ;
+            graphics.ApplyChanges();
         }
 
         private Field loadLevel(int level)
         {
-            if(level >= LEVEL_COUNT)
+            if (level >= LEVEL_COUNT)
             {
                 Console.WriteLine("You won forever!");
                 Exit();
                 return null;
             }
             levelComplete = false;
+            moveCount = 0;
             string levelName = Content.RootDirectory + Path.DirectorySeparatorChar + "level" + level;
             Field field = Field.MakeField(levelName);
-
-            graphics.PreferredBackBufferHeight = field.Height + TOP_LEFT_Y * 2 + BUTTON_HEIGHT + BUTTON_SPACER;
-            graphics.PreferredBackBufferWidth = field.Width + TOP_LEFT_X * 2 + BUTTON_WIDTH + BUTTON_SPACER;
-            graphics.ApplyChanges();
             
             return field;
         }
@@ -181,12 +204,14 @@ namespace LudumDare
                 if (inside.Item1 != -1 && inside.Item2 != -1 && !levelComplete)
                 {
                     //divide this cell
-                    field.divide(inside.Item1, inside.Item2);
+                    if(field.divide(inside.Item1, inside.Item2))
+                    {
+                        moveCount++;
+                    }
                     if (field.IsWin())
                     {
                         Console.WriteLine("You Win!");
                         levelComplete = true;
-                        //Exit();
                     }
                 } else if (restartButton.Contains(xInputLoc, yInputLoc) || loadNewLevel)
                 {
@@ -218,6 +243,11 @@ namespace LudumDare
             spriteBatch.Begin();
             spriteBatch.Draw(restartTexture,restartButton, Color.White);
             spriteBatch.Draw(nextLevelTexture,nextLevelButton, levelComplete ? Color.White : new Color(Color.Black, 128));
+            //center status text
+            Vector2 size = font.MeasureString(String.Format(status, level+1, moveCount));
+            //size.X/4 is a magic number.... it was /2 but that didn't work as intended
+            statusTextLocation.X = field.Width / 2 - size.X /4;
+            spriteBatch.DrawString(font, String.Format(status, level+1, moveCount), statusTextLocation, Color.Black);
             spriteBatch.End();
 
             field.Draw(spriteBatch, TOP_LEFT_X,TOP_LEFT_Y);

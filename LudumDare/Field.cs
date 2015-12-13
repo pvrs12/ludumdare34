@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace LudumDare
@@ -49,22 +50,36 @@ namespace LudumDare
             }
         }
 
-        public static Field MakeField(string file)
+        private static Field readFromStream(Stream s)
         {
-            using (BinaryReader br = new BinaryReader(new FileStream(file, FileMode.Open)))
+            using (StreamReader sr = new StreamReader(s))
             {
-                int rows = br.ReadByte();
-                int cols = br.ReadByte();
-
+                int rows = int.Parse(sr.ReadLine());
+                int cols = int.Parse(sr.ReadLine());
                 Field f = new Field(rows, cols);
-                for (int i = 0; i < rows; ++i)
+                for(int i=0;i< rows; ++i)
                 {
-                    for (int j = 0; j < cols; ++j)
+                    for(int j=0;j< cols; ++j)
                     {
-                        f.field[i, j] = Slot.MakeSlot(br.ReadByte());
+                        f.field[i, j] = Slot.MakeSlot(sr.ReadLine());
                     }
                 }
                 return f;
+            }
+        }
+
+        public static Field DownloadField(string URL)
+        {
+            WebRequest req = HttpWebRequest.Create(URL);
+            WebResponse resp = req.GetResponse();
+            return readFromStream(resp.GetResponseStream());
+        }
+
+        public static Field MakeField(string file)
+        {
+            using (FileStream fs = new FileStream(file, FileMode.Open))
+            {
+                return readFromStream(fs);
             }
         }
 
@@ -122,13 +137,14 @@ namespace LudumDare
             return new Tuple<int, int>(-1,-1);
         }
 
-        public void divide(int row, int col)
+        public bool divide(int row, int col)
         {
             Slot slot = field[row, col];
             if (!slot.Occupied)
             {
-                return;
+                return false;
             }
+            bool divided = false;
             if (!slot.NorthWall)
             {
                 //try row-1
@@ -138,6 +154,7 @@ namespace LudumDare
                     if (!field[row - 1, col].SouthWall)
                     {
                         field[row - 1, col].Occupied = true;
+                        divided = true;
                     }
                 }
             }
@@ -149,6 +166,7 @@ namespace LudumDare
                     if (!field[row, col + 1].WestWall)
                     {
                         field[row, col + 1].Occupied = true;
+                        divided = true;
                     }
                 }
             }
@@ -160,6 +178,7 @@ namespace LudumDare
                     if (!field[row + 1, col].NorthWall)
                     {
                         field[row + 1, col].Occupied = true;
+                        divided = true;
                     }
                 }
             }
@@ -170,10 +189,12 @@ namespace LudumDare
                     if (!field[row, col - 1].EastWall)
                     {
                         field[row, col - 1].Occupied = true;
+                        divided = true;
                     }
                 }
             }
             clear_surrounded();
+            return divided;
         }
 
         private int count_neighbors(int i, int j)
