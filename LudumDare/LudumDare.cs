@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 #endif
 using System;
 using System.IO;
+using System.Net;
 
 namespace LudumDare
 {
@@ -17,6 +18,8 @@ namespace LudumDare
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        private const string API_URL = "http://52.23.199.85:8000/";
+
         private const int BUTTON_WIDTH = 32;
         private const int BUTTON_HEIGHT = 32;
         private const int BUTTON_SPACER = 10;
@@ -24,13 +27,14 @@ namespace LudumDare
         private const int TOP_LEFT_X = 20;
         private const int TOP_LEFT_Y = 20;
 
-        private const int LEVEL_COUNT = 6;
+        private int LEVEL_COUNT = 0;
 
         private Field field;
         private bool clicked;
         private bool levelComplete;
         private bool loadNewLevel;
         private int level;
+        private int record;
         private int moveCount;
 
         Texture2D restartTexture;
@@ -44,7 +48,7 @@ namespace LudumDare
         private string userid;
 
         SpriteFont font;
-
+        
         public LudumDare()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -64,8 +68,8 @@ namespace LudumDare
             levelComplete = false;
             loadNewLevel = false;
             IsMouseVisible = true;
-            level = 0;
-            status = "Level: {0}\nMoves: {1}";
+            level = 3;
+            status = "Level: {0}\nMoves: {1}\nRecord: {2}";
 
             base.Initialize();
         }
@@ -89,18 +93,76 @@ namespace LudumDare
 
             font = Content.Load<SpriteFont>("font");
 
-            userid = GetUserId();
+            try {
+                userid = GetUserId();
 
-            field = loadLevel(level);
-            moveButtons();
+                LEVEL_COUNT = getLevelCount();
+                field = loadLevel(level);
+                moveButtons();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("You must be connected to the internet and the host server must be up!");
+                Exit();
+            }
+        }
+
+        private int getLevelCount()
+        {
+            WebRequest req = HttpWebRequest.Create(API_URL + "level");
+            using (WebResponse resp = req.GetResponse())
+            {
+                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                {
+                    return int.Parse(sr.ReadToEnd());
+                }
+            }
+        }
+
+        private void submitScore(int level, string userid,int score)
+        {
+            string s = API_URL + "level/" + level + "/user/" + userid + "/score/" + score;
+            //Console.WriteLine(s);
+            WebRequest req = HttpWebRequest.Create(s);
+            req.Method = "POST";
+            WebResponse resp = req.GetResponse();
+            resp.Close();
+        }
+
+        private int getLevelRecord(int level)
+        {
+            WebRequest req = HttpWebRequest.Create(API_URL + "level/"+level+"/record");
+            using (WebResponse resp = req.GetResponse())
+            {
+                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                {
+                    return int.Parse(sr.ReadToEnd());
+                }
+            }
         }
 
         private string GetUserId()
         {
             //check file for userid
-            //if no userid
-
-            return "";
+            if (File.Exists("userid"))
+            {
+                return File.ReadAllText("userid");
+            }
+            else
+            {
+                //if no userid
+                WebRequest req = HttpWebRequest.Create(API_URL + "user");
+                req.Method = "POST";
+                using (WebResponse resp = req.GetResponse())
+                {
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        string uid = sr.ReadToEnd();
+                        File.WriteAllText("userid", uid);
+                        return uid;
+                    }
+                }
+            }
         }
 
         private void moveButtons()
@@ -128,7 +190,7 @@ namespace LudumDare
 
         private Field loadLevel(int level)
         {
-            if (level >= LEVEL_COUNT)
+            if (level > LEVEL_COUNT)
             {
                 Console.WriteLine("You won forever!");
                 Exit();
@@ -136,9 +198,14 @@ namespace LudumDare
             }
             levelComplete = false;
             moveCount = 0;
-            string levelName = Content.RootDirectory + Path.DirectorySeparatorChar + "level" + level;
-            Field field = Field.MakeField(levelName);
-            
+
+            string s = API_URL + "level/" + level;
+            //Console.WriteLine(s);
+            Field field = Field.DownloadField(s);
+            record = getLevelRecord(level);
+            //string levelName = Content.RootDirectory + Path.DirectorySeparatorChar + "level" + level;
+            //Field field = Field.MakeField(levelName);
+
             return field;
         }
 
@@ -222,6 +289,7 @@ namespace LudumDare
                 {
                     //next level clicked
                     loadNewLevel = true;
+                    submitScore(level,userid,moveCount);
                     level++;
                 }
             }
@@ -244,10 +312,10 @@ namespace LudumDare
             spriteBatch.Draw(restartTexture,restartButton, Color.White);
             spriteBatch.Draw(nextLevelTexture,nextLevelButton, levelComplete ? Color.White : new Color(Color.Black, 128));
             //center status text
-            Vector2 size = font.MeasureString(String.Format(status, level+1, moveCount));
+            Vector2 size = font.MeasureString(String.Format(status, level, moveCount, record));
             //size.X/4 is a magic number.... it was /2 but that didn't work as intended
             statusTextLocation.X = field.Width / 2 - size.X /4;
-            spriteBatch.DrawString(font, String.Format(status, level+1, moveCount), statusTextLocation, Color.Black);
+            spriteBatch.DrawString(font, String.Format(status, level, moveCount,record), statusTextLocation, Color.Black);
             spriteBatch.End();
 
             field.Draw(spriteBatch, TOP_LEFT_X,TOP_LEFT_Y);

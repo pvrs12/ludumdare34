@@ -71,8 +71,10 @@ namespace LudumDare
         public static Field DownloadField(string URL)
         {
             WebRequest req = HttpWebRequest.Create(URL);
-            WebResponse resp = req.GetResponse();
-            return readFromStream(resp.GetResponseStream());
+            using (WebResponse resp = req.GetResponse())
+            {
+                return readFromStream(resp.GetResponseStream());
+            }
         }
 
         public static Field MakeField(string file)

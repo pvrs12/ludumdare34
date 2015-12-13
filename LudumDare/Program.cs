@@ -15,7 +15,9 @@ namespace LudumDare
         static void Main()
         {
             using (var game = new LudumDare())
+            {
                 game.Run();
+            }
         }
     }
 #endif
