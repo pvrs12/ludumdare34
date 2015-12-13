@@ -68,7 +68,7 @@ namespace LudumDare
             levelComplete = false;
             loadNewLevel = false;
             IsMouseVisible = true;
-            level = 3;
+            level = 1;
             status = "Level: {0}\nMoves: {1}\nRecord: {2}";
 
             base.Initialize();
@@ -174,10 +174,12 @@ namespace LudumDare
             restartButton = new Rectangle(TOP_LEFT_X, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             if (BUTTON_WIDTH + BUTTON_WIDTH / 2 > field.Width)
             {
+                //if the button wont fit at the right, then draw it to the right of the first button and let it hang over the field
                 nextLevelButton = new Rectangle(TOP_LEFT_X + BUTTON_WIDTH + BUTTON_WIDTH / 2, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
             else
             {
+                //draw button aligned with right of field
                 nextLevelButton = new Rectangle(field.Width + TOP_LEFT_X - BUTTON_WIDTH, field.Height + BUTTON_SPACER + TOP_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
             }
             Vector2 stringSize = font.MeasureString(status);
